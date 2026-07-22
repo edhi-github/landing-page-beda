@@ -99,7 +99,6 @@
                         </small>
                     </div>
 
-                    <!-- PENYESUAIAN: DIUBAH MENJADI NOMOR HP / WHATSAPP -->
                     <div>
                         <label style="font-size: 12px; font-weight: 600; color: #555;">No. HP / WhatsApp (Untuk Login & Notifikasi)</label>
                         <input type="tel" id="reg-username" placeholder="Contoh: 081234567890" oninput="formatPhone(this)" required>
@@ -120,7 +119,6 @@
 
     <!-- SCRIPT HANDLER -->
     <script>
-        // Fungsi untuk memastikan input No HP hanya berisi angka atau tanda +
         function formatPhone(input) {
             input.value = input.value.replace(/[^0-9+]/g, '');
         }
@@ -143,7 +141,7 @@
             const ownerName = document.getElementById('reg-owner').value.trim();
             const shopName = document.getElementById('reg-shop-name').value.trim();
             const slug = document.getElementById('reg-slug').value.trim();
-            const username = document.getElementById('reg-username').value.trim(); // Berisi No HP
+            const username = document.getElementById('reg-username').value.trim();
             const password = document.getElementById('reg-password').value;
 
             btnSubmit.disabled = true;
@@ -153,19 +151,26 @@
                 owner_name: ownerName,
                 shop_name: shopName,
                 slug: slug,
-                username: username, // Dikirim ke backend tetap sebagai 'username'
+                username: username,
                 password: password
             };
 
-            // Menggunakan API_URL dari config_landingpage.js
+            // SETTING TIMEOUT (10 Detik)
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 10000); 
+
             fetch(`${API_URL}/api/register`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(payload)
+                body: JSON.stringify(payload),
+                signal: controller.signal // Menghubungkan sinyal pembatalan jika timeout
             })
-            .then(res => res.json())
+            .then(res => {
+                clearTimeout(timeoutId); // Batalkan timer jika respons diterima
+                return res.json();
+            })
             .then(data => {
                 if (data.success) {
                     alert(`🎉 Pendaftaran Berhasil!\n\nSelamat datang di BEDAorder! Toko Anda telah aktif dengan akses Trial 14 Hari hingga tanggal ${data.subscription_until}.\n\nSilakan login ke dashboard admin warung Anda menggunakan No. HP dan Password Anda.`);
@@ -179,8 +184,17 @@
                 }
             })
             .catch(err => {
+                clearTimeout(timeoutId); // Batalkan timer jika terjadi error
                 console.error("Error Registrasi:", err);
-                alert("Terjadi kesalahan koneksi ke server database.");
+
+                // PENANGANAN JIKA SERVER TIDAK MERESPONS / TIMEOUT
+                if (err.name === 'AbortError') {
+                    alert("⚠️ Gagal terhubung ke server (RTO / Connection Timeout).\n\nServer belum merespons atau koneksi internet Anda sedang tidak stabil. Silakan periksa koneksi Anda dan coba lagi.");
+                } else {
+                    alert("⚠️ Tidak dapat terhubung ke server.\n\nPastikan koneksi internet Anda aktif atau server backend sedang berjalan.");
+                }
+
+                // Kembalikan tombol ke kondisi semula
                 btnSubmit.disabled = false;
                 btnSubmit.innerText = "🎁 MULAI UJI COBA GRATIS 14 HARI";
             });
