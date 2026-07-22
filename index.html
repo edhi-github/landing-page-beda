@@ -22,6 +22,9 @@
             text-align: center;
             transition: all 0.3s ease;
             position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
         }
         .price-card.popular {
             border-color: #2563eb;
@@ -57,10 +60,10 @@
             cursor: pointer;
             transition: 0.2s;
         }
-        .price-card.popular .btn-select-plan,
         .btn-select-plan:hover {
-            background: #2563eb;
+            background: #1d4ed8;
             color: #fff;
+            border-color: #1d4ed8;
         }
     </style>
 </head>
@@ -112,85 +115,6 @@
         </div>
     </section>
 
-    <script>
-        // Fungsi untuk memuat paket dari API /api/packages
-        async function loadPackages() {
-            const pricingContainer = document.getElementById('pricing-container');
-            const packageSelect = document.getElementById('reg-package');
-            const baseUrl = window.API_URL || 'https://nodejs-pesan-antar-production.up.railway.app';
-
-            try {
-                const response = await fetch(`${baseUrl}/api/packages`);
-                const result = await response.json();
-
-                if (!result.success || !result.data) {
-                    pricingContainer.innerHTML = `<p style="grid-column: 1 / -1; color: red;">Gagal memuat paket langganan.</p>`;
-                    return;
-                }
-
-                const packages = result.data;
-                
-                // Render Pricing Cards
-                pricingContainer.innerHTML = packages.map(pkg => {
-                    const isPopular = pkg.name.toLowerCase().includes('pro');
-                    
-                    // Parsing Fitur (Mendukung format JSON Array atau String dipisah Koma / Newline)
-                    let featureList = [];
-                    if (pkg.features) {
-                        try {
-                            featureList = typeof pkg.features === 'string' ? JSON.parse(pkg.features) : pkg.features;
-                        } catch (e) {
-                            featureList = pkg.features.split(/[\n,]+/).map(f => f.trim());
-                        }
-                    }
-
-                    const featuresHtml = featureList.map(feat => `<li>✅ ${feat}</li>`).join('');
-
-                    const priceMonthlyFormatted = new Intl.NumberFormat('id-ID').format(pkg.price_monthly || 0);
-                    const priceYearlyFormatted = new Intl.NumberFormat('id-ID').format(pkg.price_yearly || 0);
-
-                    return `
-                        <div class="price-card ${isPopular ? 'popular' : ''}">
-                            ${isPopular ? '<div class="badge-popular">Paling Populer</div>' : ''}
-                            <div class="price-title">${pkg.name}</div>
-                            <div class="price-amount">Rp ${priceMonthlyFormatted} <span>/ bulan</span></div>
-                            ${pkg.price_yearly ? `<div class="price-yearly">atau Rp ${priceYearlyFormatted} / tahun</div>` : ''}
-                            <ul class="price-features">
-                                ${featuresHtml || '<li>✅ Fitur Standar</li>'}
-                            </ul>
-                            <button class="btn-select-plan" onclick="pilihPaket(${pkg.id}, '${pkg.name}')">
-                                🎁 Coba Gratis Paket ${pkg.name}
-                            </button>
-                        </div>
-                    `;
-                }).join('');
-
-                // Render Option di Form Pendaftaran
-                if (packageSelect) {
-                    packageSelect.innerHTML = packages.map(pkg => `
-                        <option value="${pkg.id}" ${pkg.name.toLowerCase().includes('pro') ? 'selected' : ''}>
-                            Paket ${pkg.name} - Rp ${new Intl.NumberFormat('id-ID').format(pkg.price_monthly)}/bln
-                        </option>
-                    `).join('');
-                }
-
-            } catch (err) {
-                console.error("Error loading packages:", err);
-                pricingContainer.innerHTML = `<p style="grid-column: 1 / -1; color: red;">Gagal menghubungkan ke server paket.</p>`;
-            }
-        }
-
-        // Jalankan pemuatan paket saat dokumen siap
-        document.addEventListener('DOMContentLoaded', loadPackages);
-
-        function pilihPaket(packageId, packageName) {
-            const regPkg = document.getElementById('reg-package');
-            if (regPkg) regPkg.value = packageId;
-            
-            document.getElementById('daftar').scrollIntoView({ behavior: 'smooth' });
-        }
-    </script>
-
     <!-- SECTION PENDAFTARAN MITRA WARUNG -->
     <section id="daftar" class="daftar">
         <div class="container">
@@ -201,12 +125,34 @@
                 </div>
 
                 <form class="daftar-form" id="form-registrasi" onsubmit="prosesPendaftaran(event)">
+                    
+                    <!-- SIKLUS TAGIHAN (BULANAN / TAHUNAN) -->
+                    <div style="margin-bottom: 16px;">
+                        <label style="font-size: 12px; font-weight: 600; color: #555; display: block; margin-bottom: 6px;">
+                            Siklus Langganan
+                        </label>
+                        <div style="display: flex; gap: 12px;">
+                            <label style="flex: 1; display: flex; align-items: center; gap: 8px; border: 1px solid #d1d5db; padding: 10px; border-radius: 8px; cursor: pointer; background: #fff;">
+                                <input type="radio" name="billing_cycle" value="monthly" checked onchange="updateDropdownHarga()">
+                                <div>
+                                    <strong style="font-size: 13px; display: block;">Bulanan</strong>
+                                    <small style="color: #6b7280; font-size: 11px;">Bayar tiap bulan</small>
+                                </div>
+                            </label>
+                            <label style="flex: 1; display: flex; align-items: center; gap: 8px; border: 1px solid #2563eb; padding: 10px; border-radius: 8px; cursor: pointer; background: #eff6ff;">
+                                <input type="radio" name="billing_cycle" value="yearly" onchange="updateDropdownHarga()">
+                                <div>
+                                    <strong style="font-size: 13px; display: block; color: #1e40af;">Tahunan 🎉</strong>
+                                    <small style="color: #1d4ed8; font-size: 11px;">Hemat s.d 2 Bulan</small>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
                     <div>
                         <label style="font-size: 12px; font-weight: 600; color: #555;">Pilihan Paket Coba Gratis</label>
                         <select id="reg-package" style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #d1d5db; margin-bottom: 12px; font-weight: 600;">
-                            <option value="1">Paket UMKM (Max 600 Transaksi/Bln) - Rp 29.000/bln</option>
-                            <option value="2" selected>Paket Pro (Max 3.000 Transaksi/Bln) - Rp 79.000/bln</option>
-                            <option value="3">Paket Enterprise (Unlimited Transaksi) - Rp 199.000/bln</option>
+                            <!-- Option diisi otomatis dari database -->
                         </select>
                     </div>
 
@@ -246,10 +192,107 @@
         </div>
     </section>
 
+    <!-- SCRIPT JAVASCRIPT DINAMIS -->
     <script>
-        function pilihPaket(packageId, packageName) {
-            document.getElementById('reg-package').value = packageId;
-            // Scroll otomatis ke section form pendaftaran
+        let rawPackagesData = [];
+
+        // 1. Memuat daftar paket & fitur dari API
+        async function loadPackages() {
+            const pricingContainer = document.getElementById('pricing-container');
+            const baseUrl = window.API_URL || 'https://nodejs-pesan-antar-production.up.railway.app';
+
+            try {
+                const response = await fetch(`${baseUrl}/api/packages`);
+                const result = await response.json();
+
+                if (!result.success || !result.data) {
+                    pricingContainer.innerHTML = `<p style="grid-column: 1 / -1; color: red;">Gagal memuat paket langganan.</p>`;
+                    return;
+                }
+
+                rawPackagesData = result.data;
+                
+                // Render Pricing Cards
+                pricingContainer.innerHTML = rawPackagesData.map(pkg => {
+                    const isPopular = pkg.name.toLowerCase().includes('pro');
+                    
+                    let featureList = [];
+                    if (pkg.features) {
+                        try {
+                            featureList = typeof pkg.features === 'string' ? JSON.parse(pkg.features) : pkg.features;
+                        } catch (e) {
+                            featureList = pkg.features.split(/[\n,]+/).map(f => f.trim());
+                        }
+                    }
+
+                    const featuresHtml = featureList.map(feat => `<li>✅ ${feat}</li>`).join('');
+                    const priceMonthlyFormatted = new Intl.NumberFormat('id-ID').format(pkg.price_monthly || 0);
+                    const priceYearlyFormatted = new Intl.NumberFormat('id-ID').format(pkg.price_yearly || 0);
+
+                    return `
+                        <div class="price-card ${isPopular ? 'popular' : ''}">
+                            <div>
+                                ${isPopular ? '<div class="badge-popular">Paling Populer</div>' : ''}
+                                <div class="price-title">${pkg.name}</div>
+                                <div class="price-amount">Rp ${priceMonthlyFormatted} <span>/ bulan</span></div>
+                                ${pkg.price_yearly ? `<div class="price-yearly">atau Rp ${priceYearlyFormatted} / tahun</div>` : ''}
+                                <ul class="price-features">
+                                    ${featuresHtml || '<li>✅ Fitur Standar</li>'}
+                                </ul>
+                            </div>
+                            <div style="display: flex; gap: 8px; margin-top: 15px;">
+                                <button type="button" class="btn-select-plan" style="flex:1;" onclick="pilihPaket(${pkg.id}, 'monthly')">
+                                    Bulanan
+                                </button>
+                                <button type="button" class="btn-select-plan" style="flex:1; background:#2563eb; color:#fff;" onclick="pilihPaket(${pkg.id}, 'yearly')">
+                                    Tahunan
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                // Update isi dropdown harga
+                updateDropdownHarga();
+
+            } catch (err) {
+                console.error("Error loading packages:", err);
+                pricingContainer.innerHTML = `<p style="grid-column: 1 / -1; color: red;">Gagal menghubungkan ke server paket.</p>`;
+            }
+        }
+
+        // 2. Perbarui Teks Dropdown Sesuai Opsi Radio (Bulanan / Tahunan)
+        function updateDropdownHarga() {
+            const packageSelect = document.getElementById('reg-package');
+            const selectedCycleEl = document.querySelector('input[name="billing_cycle"]:checked');
+            const selectedCycle = selectedCycleEl ? selectedCycleEl.value : 'monthly';
+
+            if (!packageSelect || rawPackagesData.length === 0) return;
+
+            packageSelect.innerHTML = rawPackagesData.map(pkg => {
+                const isYearly = selectedCycle === 'yearly';
+                const price = isYearly ? pkg.price_yearly : pkg.price_monthly;
+                const periodText = isYearly ? '/thn' : '/bln';
+                const priceFormatted = new Intl.NumberFormat('id-ID').format(price || 0);
+
+                return `
+                    <option value="${pkg.id}" ${pkg.name.toLowerCase().includes('pro') ? 'selected' : ''}>
+                        Paket ${pkg.name} - Rp ${priceFormatted}${periodText}
+                    </option>
+                `;
+            }).join('');
+        }
+
+        // 3. Fungsi saat Tombol Paket Diklik
+        function pilihPaket(packageId, cycle) {
+            const radio = document.querySelector(`input[name="billing_cycle"][value="${cycle}"]`);
+            if (radio) radio.checked = true;
+
+            updateDropdownHarga();
+            
+            const regPkg = document.getElementById('reg-package');
+            if (regPkg) regPkg.value = packageId;
+            
             document.getElementById('daftar').scrollIntoView({ behavior: 'smooth' });
         }
 
@@ -268,6 +311,7 @@
             document.getElementById('preview-slug').innerText = slug || '...';
         }
 
+        // 4. Proses Pendaftaran
         function prosesPendaftaran(event) {
             event.preventDefault();
 
@@ -278,6 +322,8 @@
             const username = document.getElementById('reg-username').value.trim();
             const password = document.getElementById('reg-password').value;
             const packageId = document.getElementById('reg-package').value;
+            const selectedCycleEl = document.querySelector('input[name="billing_cycle"]:checked');
+            const billingCycle = selectedCycleEl ? selectedCycleEl.value : 'monthly';
 
             btnSubmit.disabled = true;
             btnSubmit.innerText = "⏳ Sedang Memproses Akun Anda...";
@@ -288,7 +334,8 @@
                 slug: slug,
                 username: username,
                 password: password,
-                package_id: packageId
+                package_id: packageId,
+                billing_cycle: billingCycle
             };
 
             const baseUrl = window.API_URL || 'https://nodejs-pesan-antar-production.up.railway.app';
@@ -328,6 +375,9 @@
                 btnSubmit.innerText = "🎁 MULAI UJI COBA GRATIS 14 HARI";
             });
         }
+
+        // Jalankan saat halaman dimuat
+        document.addEventListener('DOMContentLoaded', loadPackages);
     </script>
 </body>
 </html>
