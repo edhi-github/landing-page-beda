@@ -155,12 +155,12 @@
                 password: password
             };
 
-            // Tentukan URL Backend langsung ke Railway
-            const targetUrl = 'https://nodejs-pesan-antar.up.railway.app/api/register';
+            // Menggunakan API_URL dari config_landingpage.js
+            const targetUrl = `${API_URL}/api/register`;
 
             console.log("Mengirim request ke:", targetUrl);
 
-            // Bikin Timeout 15 Detik
+            // Timeout 15 Detik
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), 15000);
 
@@ -174,8 +174,12 @@
             })
             .then(async res => {
                 clearTimeout(timeoutId);
+                
+                // Membaca response JSON dari server
                 const data = await res.json();
+                
                 if (!res.ok) {
+                    // Jika server merespons HTTP 400 / 500, lempar pesan error dari server
                     throw new Error(data.message || `Server Error (${res.status})`);
                 }
                 return data;
@@ -184,6 +188,8 @@
                 if (data.success) {
                     alert(`🎉 Pendaftaran Berhasil!\n\nToko Anda telah aktif. Silakan login ke dashboard admin.`);
                     document.getElementById('form-registrasi').reset();
+                    
+                    // Redirect ke login admin di domain landing page atau backend
                     window.location.href = "/admin/login.html"; 
                 } else {
                     alert(`⚠️ Gagal Mendaftar: ${data.message}`);
@@ -196,7 +202,7 @@
                 console.error("Error Detail:", err);
 
                 if (err.name === 'AbortError') {
-                    alert("⚠️ Waktu koneksi habis (Timeout). Server Railway mungkin sedang sleeping atau tidak merespons.");
+                    alert("⚠️ Waktu koneksi habis (Timeout). Server backend Railway mungkin sedang tidak merespons.");
                 } else {
                     alert(`⚠️ Terjadi kesalahan: ${err.message}`);
                 }
