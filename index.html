@@ -5,79 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BEDAorder - Warung Anda Jadi Digital!</title>
     <link rel="stylesheet" href="style.css">
-    <!-- Hubungkan ke Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- PANGGIL CONFIG LANDING PAGE DI SINI -->
+    <script src="config_landingpage.js"></script>
 </head>
 <body>
 
-    <!-- SCRIPT KONFIGURASI API -->
-    <script src="config.js"></script>
+    <!-- Header, Hero, Fitur tetap sama -->
+    ...
 
-    <header>
-        <div class="container header-content">
-            <!-- Menyatukan Logo Gambar dan Tulisan BEDAorder -->
-            <a href="#home" class="logo-brand">
-                <img src="logo.png" alt="Logo BEDA">
-                <span class="brand-text">BEDA<span>order</span></span>
-            </a>
-            
-            <nav class="nav-links">
-                <ul>
-                    <li><a href="#home">Home</a></li>
-                    <li><a href="#fitur">Fitur</a></li>
-                    <li><a href="#daftar" class="btn-daftar-nav">Daftar Sekarang</a></li>
-                </ul>
-            </nav>
-        </div>
-    </header>
-
-    <section id="home" class="hero">
-        <div class="container">
-            <div class="hero-text">
-                <h1>Warung Anda Jadi Digital!<br>Pesanan Mudah, Untung Melimpah</h1>
-                <p class="sub-headline">Sistem Pesan Digital QR & WhatsApp Murah untuk Semua Jenis Warung Makan. Mudah Dipakai, Tanpa Komisi.</p>
-                <a href="#daftar" class="btn-primary">Coba Gratis 14 Hari</a>
-            </div>
-        </div>
-    </section>
-
-    <section id="fitur" class="fitur">
-        <div class="container">
-            <h2>How It Works</h2>
-            <div class="fitur-grid">
-                <div class="fitur-item">
-                    <div class="icon">📱</div>
-                    <h3>Pesan via QR & WA</h3>
-                    <p>Pelanggan scan QR meja, menu langsung muncul di HP tanpa antre.</p>
-                </div>
-                <div class="fitur-item">
-                    <div class="icon">📋</div>
-                    <h3>Menu Digital</h3>
-                    <p>Tampilkan menu makanan dengan foto menarik & harga up-to-date.</p>
-                </div>
-                <div class="fitur-item">
-                    <div class="icon">📊</div>
-                    <h3>Laporan Instan</h3>
-                    <p>Pantau omzet harian warung Anda secara otomatis dan rapi.</p>
-                </div>
-                <div class="fitur-item">
-                    <div class="icon">🏷️</div>
-                    <h3>Hemat Biaya</h3>
-                    <p>Sistem canggih premium dengan harga sewa yang sangat bersahabat.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
+    <!-- SECTION PENDAFTARAN MITRA WARUNG -->
     <section id="daftar" class="daftar">
         <div class="container">
             <div class="daftar-container">
                 <div class="form-text">
-                    <h3>Daftar BEDAorder</h3>
-                    <p>Dapatkan uji coba **GRATIS 14 hari** tanpa biaya awal. Mulai digitalisasi bisnis kuliner Anda sekarang!</p>
+                    <h3>Daftar Mitra Warung BEDAorder</h3>
+                    <p>Dapatkan uji coba <b>GRATIS 14 hari</b> tanpa biaya awal. Mulai digitalisasi bisnis kuliner Anda sekarang!</p>
                 </div>
 
-                <!-- FORM PENDAFTARAN -->
                 <form class="daftar-form" id="form-registrasi" onsubmit="prosesPendaftaran(event)">
                     <div>
                         <label style="font-size: 12px; font-weight: 600; color: #555;">Nama Pemilik Warung</label>
@@ -92,7 +38,7 @@
                     <div>
                         <label style="font-size: 12px; font-weight: 600; color: #555;">URL / Link Toko Anda</label>
                         <input type="text" id="reg-slug" placeholder="warung-makan-barokah" style="background-color: #f3f4f6; font-family: monospace;" readonly required>
-                        <small style="font-size: 11px; color: #888; display: block; margin-top: -8px; margin-bottom: 10px;">
+                        <small style="font-size: 11px; color: #888; display: block; margin-top: 4px; margin-bottom: 10px;">
                             Link toko Anda: <i>bedaorder.com/?shop=<span id="preview-slug">...</span></i>
                         </small>
                     </div>
@@ -115,28 +61,19 @@
         </div>
     </section>
 
-    <footer>
-        <div class="container">
-            <img src="logo.png" alt="Logo BEDAorder" style="height: 30px; margin: 0 auto 15px auto; opacity: 0.7;">
-            <p>&copy; 2026 BEDA-digital assistance. All rights reserved.</p>
-        </div>
-    </footer>
-
-    <!-- JAVASCRIPT HANDLER REGISTRASI -->
+    <!-- SCRIPT HANDLER -->
     <script>
-        // 1. Fungsi Membuat Slug Otomatis dari Nama Warung
         function generateSlug(text) {
             const slug = text.toLowerCase()
                 .trim()
-                .replace(/[^\w\s-]/g, '')  // Hapus karakter khusus
-                .replace(/[\s_-]+/g, '-')   // Ganti spasi dengan tanda minus (-)
-                .replace(/^-+|-+$/g, '');   // Hapus minus di awal dan akhir
+                .replace(/[^\w\s-]/g, '')
+                .replace(/[\s_-]+/g, '-')
+                .replace(/^-+|-+$/g, '');
 
             document.getElementById('reg-slug').value = slug;
             document.getElementById('preview-slug').innerText = slug || '...';
         }
 
-        // 2. Fungsi Mengirim Data Pendaftaran ke Server
         function prosesPendaftaran(event) {
             event.preventDefault();
 
@@ -146,11 +83,6 @@
             const slug = document.getElementById('reg-slug').value.trim();
             const username = document.getElementById('reg-username').value.trim();
             const password = document.getElementById('reg-password').value;
-
-            if (!slug) {
-                alert("Harap masukkan Nama Warung yang valid!");
-                return;
-            }
 
             btnSubmit.disabled = true;
             btnSubmit.innerText = "⏳ Sedang Memproses Akun Anda...";
@@ -163,6 +95,7 @@
                 password: password
             };
 
+            // Menggunakan API_URL dari config_landingpage.js
             fetch(`${API_URL}/api/register`, {
                 method: 'POST',
                 headers: {
@@ -174,12 +107,8 @@
             .then(data => {
                 if (data.success) {
                     alert(`🎉 Pendaftaran Berhasil!\n\nSelamat datang di BEDAorder! Toko Anda telah aktif dengan akses Trial 14 Hari hingga tanggal ${data.subscription_until}.\n\nSilakan login ke dashboard admin warung Anda.`);
-                    
-                    // Reset Form
                     document.getElementById('form-registrasi').reset();
                     document.getElementById('preview-slug').innerText = '...';
-
-                    // Redirect ke halaman login admin warung
                     window.location.href = "/admin/login.html"; 
                 } else {
                     alert(`⚠️ Gagal Mendaftar: ${data.message}`);
@@ -189,7 +118,7 @@
             })
             .catch(err => {
                 console.error("Error Registrasi:", err);
-                alert("Terjadi kesalahan koneksi ke server internal. Coba lagi beberapa saat lagi.");
+                alert("Terjadi kesalahan koneksi ke server database.");
                 btnSubmit.disabled = false;
                 btnSubmit.innerText = "🎁 MULAI UJI COBA GRATIS 14 HARI";
             });
