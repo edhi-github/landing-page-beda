@@ -155,27 +155,35 @@
                 password: password
             };
 
-            // SETTING TIMEOUT (10 Detik)
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 10000); 
+            // Tentukan URL Backend langsung ke Railway
+            const targetUrl = 'https://nodejs-pesan-antar.up.railway.app/api/register';
 
-            fetch(`${API_URL}/api/register`, {
+            console.log("Mengirim request ke:", targetUrl);
+
+            // Bikin Timeout 15 Detik
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 15000);
+
+            fetch(targetUrl, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(payload),
-                signal: controller.signal // Menghubungkan sinyal pembatalan jika timeout
+                signal: controller.signal
             })
-            .then(res => {
-                clearTimeout(timeoutId); // Batalkan timer jika respons diterima
-                return res.json();
+            .then(async res => {
+                clearTimeout(timeoutId);
+                const data = await res.json();
+                if (!res.ok) {
+                    throw new Error(data.message || `Server Error (${res.status})`);
+                }
+                return data;
             })
             .then(data => {
                 if (data.success) {
-                    alert(`🎉 Pendaftaran Berhasil!\n\nSelamat datang di BEDAorder! Toko Anda telah aktif dengan akses Trial 14 Hari hingga tanggal ${data.subscription_until}.\n\nSilakan login ke dashboard admin warung Anda menggunakan No. HP dan Password Anda.`);
+                    alert(`🎉 Pendaftaran Berhasil!\n\nToko Anda telah aktif. Silakan login ke dashboard admin.`);
                     document.getElementById('form-registrasi').reset();
-                    document.getElementById('preview-slug').innerText = '...';
                     window.location.href = "/admin/login.html"; 
                 } else {
                     alert(`⚠️ Gagal Mendaftar: ${data.message}`);
@@ -184,17 +192,15 @@
                 }
             })
             .catch(err => {
-                clearTimeout(timeoutId); // Batalkan timer jika terjadi error
-                console.error("Error Registrasi:", err);
+                clearTimeout(timeoutId);
+                console.error("Error Detail:", err);
 
-                // PENANGANAN JIKA SERVER TIDAK MERESPONS / TIMEOUT
                 if (err.name === 'AbortError') {
-                    alert("⚠️ Gagal terhubung ke server (RTO / Connection Timeout).\n\nServer belum merespons atau koneksi internet Anda sedang tidak stabil. Silakan periksa koneksi Anda dan coba lagi.");
+                    alert("⚠️ Waktu koneksi habis (Timeout). Server Railway mungkin sedang sleeping atau tidak merespons.");
                 } else {
-                    alert("⚠️ Tidak dapat terhubung ke server.\n\nPastikan koneksi internet Anda aktif atau server backend sedang berjalan.");
+                    alert(`⚠️ Terjadi kesalahan: ${err.message}`);
                 }
 
-                // Kembalikan tombol ke kondisi semula
                 btnSubmit.disabled = false;
                 btnSubmit.innerText = "🎁 MULAI UJI COBA GRATIS 14 HARI";
             });
