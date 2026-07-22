@@ -105,57 +105,91 @@
                 <p style="color: #6b7280; margin-top: 8px;">Semua paket mendapatkan <b>Uji Coba Gratis 14 Hari</b>. Tanpa komisi penjualan!</p>
             </div>
 
-            <div class="pricing-grid">
-                <!-- Paket UMKM -->
-                <div class="price-card">
-                    <div class="price-title">UMKM</div>
-                    <div class="price-amount">Rp 29.000 <span>/ bulan</span></div>
-                    <div class="price-yearly">atau Rp 299.000 / tahun</div>
-                    <ul class="price-features">
-                        <li>✅ Maksimal 600 Transaksi / Bulan</li>
-                        <li>✅ Unlimited Menu Produk</li>
-                        <li>✅ Notifikasi WA Pendaftaran & Tagihan</li>
-                        <li>✅ Cetak Struk Kasir</li>
-                        <li>✅ Laporan Penjualan Dasar</li>
-                    </ul>
-                    <button class="btn-select-plan" onclick="pilihPaket(1, 'UMKM')">🎁 Coba Gratis Paket UMKM</button>
-                </div>
-
-                <!-- Paket Pro -->
-                <div class="price-card popular">
-                    <div class="badge-popular">Paling Populer</div>
-                    <div class="price-title">Pro</div>
-                    <div class="price-amount">Rp 79.000 <span>/ bulan</span></div>
-                    <div class="price-yearly">atau Rp 890.000 / tahun</div>
-                    <ul class="price-features">
-                        <li>✅ Maksimal 3.000 Transaksi / Bulan</li>
-                        <li>✅ Unlimited Menu Produk</li>
-                        <li>✅ Notifikasi WA Pendaftaran & Tagihan</li>
-                        <li>✅ Cetak Struk Kasir (USB/Bluetooth)</li>
-                        <li>✅ Laporan Penjualan + Export Excel</li>
-                        <li>✅ Dukungan Multi-Kasir</li>
-                    </ul>
-                    <button class="btn-select-plan" onclick="pilihPaket(2, 'Pro')">🎁 Coba Gratis Paket Pro</button>
-                </div>
-
-                <!-- Paket Enterprise -->
-                <div class="price-card">
-                    <div class="price-title">Enterprise</div>
-                    <div class="price-amount">Rp 199.000 <span>/ bulan</span></div>
-                    <div class="price-yearly">atau Rp 1.990.000 / tahun</div>
-                    <ul class="price-features">
-                        <li>⚡ <b>Transaksi Tanpa Batas (Unlimited)</b></li>
-                        <li>✅ Unlimited Menu Produk</li>
-                        <li>✅ Notifikasi WA Pendaftaran & Tagihan</li>
-                        <li>✅ Cetak Struk Kasir</li>
-                        <li>✅ Laporan Lengkap + Export Excel</li>
-                        <li>✅ Bantuan Pemasangan Menu Produk</li>
-                    </ul>
-                    <button class="btn-select-plan" onclick="pilihPaket(3, 'Enterprise')">🎁 Coba Gratis Paket Enterprise</button>
-                </div>
+            <!-- Container untuk Pricing Cards Dinamis -->
+            <div class="pricing-grid" id="pricing-container">
+                <p style="text-align: center; grid-column: 1 / -1; color: #6b7280;">⏳ Memuat daftar paket...</p>
             </div>
         </div>
     </section>
+
+    <script>
+        // Fungsi untuk memuat paket dari API /api/packages
+        async function loadPackages() {
+            const pricingContainer = document.getElementById('pricing-container');
+            const packageSelect = document.getElementById('reg-package');
+            const baseUrl = window.API_URL || 'https://nodejs-pesan-antar-production.up.railway.app';
+
+            try {
+                const response = await fetch(`${baseUrl}/api/packages`);
+                const result = await response.json();
+
+                if (!result.success || !result.data) {
+                    pricingContainer.innerHTML = `<p style="grid-column: 1 / -1; color: red;">Gagal memuat paket langganan.</p>`;
+                    return;
+                }
+
+                const packages = result.data;
+                
+                // Render Pricing Cards
+                pricingContainer.innerHTML = packages.map(pkg => {
+                    const isPopular = pkg.name.toLowerCase().includes('pro');
+                    
+                    // Parsing Fitur (Mendukung format JSON Array atau String dipisah Koma / Newline)
+                    let featureList = [];
+                    if (pkg.features) {
+                        try {
+                            featureList = typeof pkg.features === 'string' ? JSON.parse(pkg.features) : pkg.features;
+                        } catch (e) {
+                            featureList = pkg.features.split(/[\n,]+/).map(f => f.trim());
+                        }
+                    }
+
+                    const featuresHtml = featureList.map(feat => `<li>✅ ${feat}</li>`).join('');
+
+                    const priceMonthlyFormatted = new Intl.NumberFormat('id-ID').format(pkg.price_monthly || 0);
+                    const priceYearlyFormatted = new Intl.NumberFormat('id-ID').format(pkg.price_yearly || 0);
+
+                    return `
+                        <div class="price-card ${isPopular ? 'popular' : ''}">
+                            ${isPopular ? '<div class="badge-popular">Paling Populer</div>' : ''}
+                            <div class="price-title">${pkg.name}</div>
+                            <div class="price-amount">Rp ${priceMonthlyFormatted} <span>/ bulan</span></div>
+                            ${pkg.price_yearly ? `<div class="price-yearly">atau Rp ${priceYearlyFormatted} / tahun</div>` : ''}
+                            <ul class="price-features">
+                                ${featuresHtml || '<li>✅ Fitur Standar</li>'}
+                            </ul>
+                            <button class="btn-select-plan" onclick="pilihPaket(${pkg.id}, '${pkg.name}')">
+                                🎁 Coba Gratis Paket ${pkg.name}
+                            </button>
+                        </div>
+                    `;
+                }).join('');
+
+                // Render Option di Form Pendaftaran
+                if (packageSelect) {
+                    packageSelect.innerHTML = packages.map(pkg => `
+                        <option value="${pkg.id}" ${pkg.name.toLowerCase().includes('pro') ? 'selected' : ''}>
+                            Paket ${pkg.name} - Rp ${new Intl.NumberFormat('id-ID').format(pkg.price_monthly)}/bln
+                        </option>
+                    `).join('');
+                }
+
+            } catch (err) {
+                console.error("Error loading packages:", err);
+                pricingContainer.innerHTML = `<p style="grid-column: 1 / -1; color: red;">Gagal menghubungkan ke server paket.</p>`;
+            }
+        }
+
+        // Jalankan pemuatan paket saat dokumen siap
+        document.addEventListener('DOMContentLoaded', loadPackages);
+
+        function pilihPaket(packageId, packageName) {
+            const regPkg = document.getElementById('reg-package');
+            if (regPkg) regPkg.value = packageId;
+            
+            document.getElementById('daftar').scrollIntoView({ behavior: 'smooth' });
+        }
+    </script>
 
     <!-- SECTION PENDAFTARAN MITRA WARUNG -->
     <section id="daftar" class="daftar">
