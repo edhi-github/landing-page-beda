@@ -6,7 +6,63 @@
     <title>BEDAorder - Warung Anda Jadi Digital!</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-    
+    <style>
+        /* Style Tambahan Pilihan Paket Pricing */
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .price-card {
+            background: #fff;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 24px;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        .price-card.popular {
+            border-color: #2563eb;
+            box-shadow: 0 10px 25px -5px rgba(37, 99, 235, 0.15);
+        }
+        .badge-popular {
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #2563eb;
+            color: #fff;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 4px 12px;
+            border-radius: 20px;
+            text-transform: uppercase;
+        }
+        .price-title { font-size: 20px; font-weight: 700; color: #1f2937; margin-bottom: 8px; }
+        .price-amount { font-size: 28px; font-weight: 700; color: #2563eb; margin: 12px 0; }
+        .price-amount span { font-size: 14px; font-weight: 400; color: #6b7280; }
+        .price-yearly { font-size: 12px; color: #059669; font-weight: 600; margin-bottom: 16px; }
+        .price-features { list-style: none; padding: 0; margin: 20px 0; text-align: left; font-size: 13px; color: #4b5563; }
+        .price-features li { margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+        .btn-select-plan {
+            width: 100%;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #2563eb;
+            background: #fff;
+            color: #2563eb;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .price-card.popular .btn-select-plan,
+        .btn-select-plan:hover {
+            background: #2563eb;
+            color: #fff;
+        }
+    </style>
 </head>
 <body>
 
@@ -15,7 +71,6 @@
 
     <header>
         <div class="container header-content">
-            <!-- Menyatukan Logo Gambar dan Tulisan BEDAorder -->
             <a href="#home" class="logo-brand">
                 <img src="logo.png" alt="Logo BEDA">
                 <span class="brand-text">BEDA<span>order</span></span>
@@ -25,6 +80,7 @@
                 <ul>
                     <li><a href="#home">Home</a></li>
                     <li><a href="#fitur">Fitur</a></li>
+                    <li><a href="#harga">Harga Paket</a></li>
                     <li><a href="#daftar" class="btn-daftar-nav">Daftar Sekarang</a></li>
                 </ul>
             </nav>
@@ -36,34 +92,66 @@
             <div class="hero-text">
                 <h1>Warung Anda Jadi Digital!<br>Pesanan Mudah, Untung Melimpah</h1>
                 <p class="sub-headline">Sistem Pesan Digital QR & WhatsApp Murah untuk Semua Jenis Warung Makan. Mudah Dipakai, Tanpa Komisi.</p>
-                <a href="#daftar" class="btn-primary">Coba Gratis 14 Hari</a>
+                <a href="#harga" class="btn-primary">Coba Gratis 14 Hari</a>
             </div>
         </div>
     </section>
 
-    <section id="fitur" class="fitur">
+    <!-- SECTION HARGA PAKET -->
+    <section id="harga" class="harga" style="padding: 60px 0; background-color: #f9fafb;">
         <div class="container">
-            <h2>How It Works</h2>
-            <div class="fitur-grid">
-                <div class="fitur-item">
-                    <div class="icon">📱</div>
-                    <h3>Pesan via QR & WA</h3>
-                    <p>Pelanggan scan QR meja, menu langsung muncul di HP tanpa antre.</p>
+            <div style="text-align: center; max-width: 600px; margin: 0 auto;">
+                <h2>Pilihan Paket Hemat Warung</h2>
+                <p style="color: #6b7280; margin-top: 8px;">Semua paket mendapatkan <b>Uji Coba Gratis 14 Hari</b>. Tanpa komisi penjualan!</p>
+            </div>
+
+            <div class="pricing-grid">
+                <!-- Paket UMKM -->
+                <div class="price-card">
+                    <div class="price-title">UMKM</div>
+                    <div class="price-amount">Rp 29.000 <span>/ bulan</span></div>
+                    <div class="price-yearly">atau Rp 299.000 / tahun</div>
+                    <ul class="price-features">
+                        <li>✅ Maksimal 600 Transaksi / Bulan</li>
+                        <li>✅ Unlimited Menu Produk</li>
+                        <li>✅ Notifikasi WA Pendaftaran & Tagihan</li>
+                        <li>✅ Cetak Struk Kasir</li>
+                        <li>✅ Laporan Penjualan Dasar</li>
+                    </ul>
+                    <button class="btn-select-plan" onclick="pilihPaket(1, 'UMKM')">🎁 Coba Gratis Paket UMKM</button>
                 </div>
-                <div class="fitur-item">
-                    <div class="icon">📋</div>
-                    <h3>Menu Digital</h3>
-                    <p>Tampilkan menu makanan dengan foto menarik & harga up-to-date.</p>
+
+                <!-- Paket Pro -->
+                <div class="price-card popular">
+                    <div class="badge-popular">Paling Populer</div>
+                    <div class="price-title">Pro</div>
+                    <div class="price-amount">Rp 79.000 <span>/ bulan</span></div>
+                    <div class="price-yearly">atau Rp 890.000 / tahun</div>
+                    <ul class="price-features">
+                        <li>✅ Maksimal 3.000 Transaksi / Bulan</li>
+                        <li>✅ Unlimited Menu Produk</li>
+                        <li>✅ Notifikasi WA Pendaftaran & Tagihan</li>
+                        <li>✅ Cetak Struk Kasir (USB/Bluetooth)</li>
+                        <li>✅ Laporan Penjualan + Export Excel</li>
+                        <li>✅ Dukungan Multi-Kasir</li>
+                    </ul>
+                    <button class="btn-select-plan" onclick="pilihPaket(2, 'Pro')">🎁 Coba Gratis Paket Pro</button>
                 </div>
-                <div class="fitur-item">
-                    <div class="icon">📊</div>
-                    <h3>Laporan Instan</h3>
-                    <p>Pantau omzet harian warung Anda secara otomatis dan rapi.</p>
-                </div>
-                <div class="fitur-item">
-                    <div class="icon">🏷️</div>
-                    <h3>Hemat Biaya</h3>
-                    <p>Sistem canggih premium dengan harga sewa yang sangat bersahabat.</p>
+
+                <!-- Paket Enterprise -->
+                <div class="price-card">
+                    <div class="price-title">Enterprise</div>
+                    <div class="price-amount">Rp 199.000 <span>/ bulan</span></div>
+                    <div class="price-yearly">atau Rp 1.990.000 / tahun</div>
+                    <ul class="price-features">
+                        <li>⚡ <b>Transaksi Tanpa Batas (Unlimited)</b></li>
+                        <li>✅ Unlimited Menu Produk</li>
+                        <li>✅ Notifikasi WA Pendaftaran & Tagihan</li>
+                        <li>✅ Cetak Struk Kasir</li>
+                        <li>✅ Laporan Lengkap + Export Excel</li>
+                        <li>✅ Bantuan Pemasangan Menu Produk</li>
+                    </ul>
+                    <button class="btn-select-plan" onclick="pilihPaket(3, 'Enterprise')">🎁 Coba Gratis Paket Enterprise</button>
                 </div>
             </div>
         </div>
@@ -79,6 +167,15 @@
                 </div>
 
                 <form class="daftar-form" id="form-registrasi" onsubmit="prosesPendaftaran(event)">
+                    <div>
+                        <label style="font-size: 12px; font-weight: 600; color: #555;">Pilihan Paket Coba Gratis</label>
+                        <select id="reg-package" style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #d1d5db; margin-bottom: 12px; font-weight: 600;">
+                            <option value="1">Paket UMKM (Max 600 Transaksi/Bln) - Rp 29.000/bln</option>
+                            <option value="2" selected>Paket Pro (Max 3.000 Transaksi/Bln) - Rp 79.000/bln</option>
+                            <option value="3">Paket Enterprise (Unlimited Transaksi) - Rp 199.000/bln</option>
+                        </select>
+                    </div>
+
                     <div>
                         <label style="font-size: 12px; font-weight: 600; color: #555;">Nama Pemilik Warung</label>
                         <input type="text" id="reg-owner" placeholder="Contoh: Budi Santoso" required>
@@ -115,8 +212,13 @@
         </div>
     </section>
 
-    <!-- SCRIPT HANDLER -->
     <script>
+        function pilihPaket(packageId, packageName) {
+            document.getElementById('reg-package').value = packageId;
+            // Scroll otomatis ke section form pendaftaran
+            document.getElementById('daftar').scrollIntoView({ behavior: 'smooth' });
+        }
+
         function formatPhone(input) {
             input.value = input.value.replace(/[^0-9+]/g, '');
         }
@@ -141,6 +243,7 @@
             const slug = document.getElementById('reg-slug').value.trim();
             const username = document.getElementById('reg-username').value.trim();
             const password = document.getElementById('reg-password').value;
+            const packageId = document.getElementById('reg-package').value;
 
             btnSubmit.disabled = true;
             btnSubmit.innerText = "⏳ Sedang Memproses Akun Anda...";
@@ -150,45 +253,33 @@
                 shop_name: shopName,
                 slug: slug,
                 username: username,
-                password: password
+                password: password,
+                package_id: packageId
             };
 
-            // Menggunakan API_URL dari config.js
-            const targetUrl = `${API_URL}/api/register`;
+            const baseUrl = window.API_URL || 'https://nodejs-pesan-antar-production.up.railway.app';
+            const targetUrl = `${baseUrl}/api/register`;
 
-            console.log("Mengirim request ke:", targetUrl);
-
-            // Timeout 15 Detik
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), 15000);
 
             fetch(targetUrl, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload),
                 signal: controller.signal
             })
             .then(async res => {
                 clearTimeout(timeoutId);
-                
-                // Membaca response JSON dari server
                 const data = await res.json();
-                
-                if (!res.ok) {
-                    // Jika server merespons HTTP 400 / 500, lempar pesan error dari server
-                    throw new Error(data.message || `Server Error (${res.status})`);
-                }
+                if (!res.ok) throw new Error(data.message || `Server Error (${res.status})`);
                 return data;
             })
             .then(data => {
                 if (data.success) {
                     alert(`🎉 Pendaftaran Berhasil!\n\nToko Anda telah aktif. Silakan login ke dashboard admin.`);
                     document.getElementById('form-registrasi').reset();
-                    
-                    // Redirect ke login admin di domain landing page atau backend
-                    window.location.href = "/admin/login.html"; 
+                    window.location.href = "https://beda-pesanantar.up.railway.app/login.html"; 
                 } else {
                     alert(`⚠️ Gagal Mendaftar: ${data.message}`);
                     btnSubmit.disabled = false;
@@ -198,13 +289,7 @@
             .catch(err => {
                 clearTimeout(timeoutId);
                 console.error("Error Detail:", err);
-
-                if (err.name === 'AbortError') {
-                    alert("⚠️ Waktu koneksi habis (Timeout). Server backend Railway mungkin sedang tidak merespons.");
-                } else {
-                    alert(`⚠️ Terjadi kesalahan: ${err.message}`);
-                }
-
+                alert(`⚠️ Terjadi kesalahan: ${err.message}`);
                 btnSubmit.disabled = false;
                 btnSubmit.innerText = "🎁 MULAI UJI COBA GRATIS 14 HARI";
             });
