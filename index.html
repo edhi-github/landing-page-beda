@@ -391,7 +391,18 @@
                 rawPackagesData = result.data;
                 
                 pricingContainer.innerHTML = rawPackagesData.map(pkg => {
-                    const isPopular = pkg.name.toLowerCase().includes('pro');
+                    const isPopular = pkg.name.toLowerCase().includes('juragan') || pkg.name.toLowerCase().includes('pro');
+                    
+                    // 1. HITUNG ATAU AMBIL HARGA ASLI SEBELUM PROMO (Dicoret)
+                    // Jika ada field price_original dari database gunakan itu, jika tidak ada buat estimasi dicoret ~40-50%
+                    const originalMonthly = pkg.price_original_monthly || Math.round((pkg.price_monthly * 1.6) / 1000) * 1000;
+                    const originalYearly = pkg.price_original_yearly || Math.round((pkg.price_yearly * 1.5) / 1000) * 1000;
+
+                    const priceMonthlyFormatted = new Intl.NumberFormat('id-ID').format(pkg.price_monthly || 0);
+                    const origMonthlyFormatted = new Intl.NumberFormat('id-ID').format(originalMonthly);
+                    
+                    const priceYearlyFormatted = new Intl.NumberFormat('id-ID').format(pkg.price_yearly || 0);
+                    const origYearlyFormatted = new Intl.NumberFormat('id-ID').format(originalYearly);
                     
                     let featureList = [];
                     if (pkg.features) {
@@ -403,16 +414,37 @@
                     }
 
                     const featuresHtml = featureList.map(feat => `<li>✅ ${feat}</li>`).join('');
-                    const priceMonthlyFormatted = new Intl.NumberFormat('id-ID').format(pkg.price_monthly || 0);
-                    const priceYearlyFormatted = new Intl.NumberFormat('id-ID').format(pkg.price_yearly || 0);
 
                     return `
                         <div class="price-card ${isPopular ? 'popular' : ''}">
                             <div>
                                 ${isPopular ? '<div class="badge-popular">Paling Populer</div>' : ''}
+                                
+                                <!-- BADGE HARGA PROMO -->
+                                <div style="display:inline-block; background: #fee2e2; color: #dc2626; font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 12px; margin-bottom: 8px;">
+                                    🔥 HARGA PROMO TERBATAS
+                                </div>
+
                                 <div class="price-title">${pkg.name}</div>
-                                <div class="price-amount">Rp ${priceMonthlyFormatted} <span>/ bulan</span></div>
-                                ${pkg.price_yearly ? `<div class="price-yearly">atau Rp ${priceYearlyFormatted} / tahun</div>` : ''}
+                                
+                                <!-- HARGA DICORET + HARGA PROMO -->
+                                <div style="margin: 10px 0;">
+                                    <span style="text-decoration: line-through; color: #9ca3af; font-size: 15px; font-weight: 600;">
+                                        Rp ${origMonthlyFormatted}
+                                    </span>
+                                    <div class="price-amount" style="margin: 2px 0;">
+                                        Rp ${priceMonthlyFormatted} <span style="font-size: 13px;">/ bulan</span>
+                                    </div>
+                                </div>
+
+                                <!-- HARGA TAHUNAN PROMO -->
+                                ${pkg.price_yearly ? `
+                                    <div class="price-yearly">
+                                        atau <span style="text-decoration: line-through; color: #9ca3af; font-weight: normal;">Rp ${origYearlyFormatted}</span> 
+                                        <strong style="color: #059669;">Rp ${priceYearlyFormatted} / tahun</strong>
+                                    </div>
+                                ` : ''}
+
                                 <ul class="price-features">
                                     ${featuresHtml || '<li>✅ Fitur Standar</li>'}
                                 </ul>
